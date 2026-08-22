@@ -225,7 +225,7 @@
               <text class="rect-mode-button" style="background-color:{{lang==='cn' && rectKeyboardtype!=='T9' ? 'rgb(13,132,255)' : 'rgb(38,38,38)'}}" @click="selectRectKeyboard('cn')">中</text>
               <text class="rect-mode-button" style="background-color:{{lang==='en' && rectKeyboardtype!=='T9' ? 'rgb(13,132,255)' : 'rgb(38,38,38)'}}" @click="selectRectKeyboard('en')">英</text>
               <text class="rect-mode-button" style="background-color:{{rectKeyboardtype==='T9' ? 'rgb(13,132,255)' : 'rgb(38,38,38)'}}" @click="selectRectKeyboard('t9')">九</text>
-              <text class="rect-mode-button" style="font-size:22px" @click="openRectPanel('settings')">设置</text>
+              <text class="rect-mode-button" style="font-size:24px" @click="openRectPanel('settings')">设置</text>
             </div>
           </scroll>
         </div>
@@ -825,24 +825,26 @@ export default {
   /* 仅该局部滚动容器处理横向滑动；外层不绑定滑动事件。 */
 }
 .rect-mode-menu {
-  min-width:360px;
+  /* 四个大圆形菜单项保留完整内容宽度，由内部 scroll 横向查看。 */
+  min-width:432px;
   height:100%;
-  padding-left:12px;
-  padding-right:12px;
+  padding-left:18px;
+  padding-right:18px;
   flex-direction:row;
   justify-content:flex-start;
   align-items:center;
 }
 .rect-mode-button {
   color:#fff;
-  font-size:30px;
+  font-size:34px;
   font-weight:bold;
-  width:70px;
-  height:70px;
-  margin:0 3px;
-  border-radius:35px;
+  /* 84px 接近方屏键盘按键的可点按面积，并在 252px 面板内保留上下呼吸空间。 */
+  width:84px;
+  height:84px;
+  margin:0 6px;
+  border-radius:42px;
   text-align:center;
-  border:3px solid rgba(255,255,255,0.16);
+  border:3px solid rgba(255,255,255,0.14);
 }
 .rect-settings-overlay {
   justify-content:flex-start;
