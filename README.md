@@ -33,7 +33,7 @@ input-method
 | maxlength | number | 5 | 否 | 默认展⽰的拼⾳候选词数量， maxlength > 0 时有效；点击展开查看所有候选词 |
 | vibratemode | string | "" | 否 | 振动模式，""表⽰输⼊时不振动，"long" 表⽰⻓振动，"short" 表⽰短振动。默认为 "" |
 | screentype | string | "circle" | 否 | 设备屏幕类型，"rect" 表示方形屏布局（对应 designWidth ≥ 336），"circle" 表示圆形屏布局（对应 designWidth 为 480），"pill-shaped" 表示胶囊形屏布局（对应 designWidth ≥ 192）。方屏模式内置“切换”入口。 |
-| traditional | boolean | false | 否 | 是否在方屏中文输入时使用繁体候选。首次使用默认 `false`，即简体；可通过方屏设置页即时修改。已保存的方屏偏好会在下一次打开时自动恢复。 |
+| traditional | boolean | false | 否 | 是否在方屏中文输入时使用繁体候选。默认 `false`，即简体；可通过方屏设置页即时修改。 |
 
 ## 事件
 | 名称 | 参数 | 描述 |
@@ -48,7 +48,7 @@ input-method
 
 当 `screentype="rect"` 时，左侧控制按钮为“切换”。点击后会在键盘上方打开由圆形按钮组成的横向滚动菜单：**中、英、九、设置**。前三项分别切换中文全键、英文全键和 T9 九键；设置页提供按键振动（关/短/长）、候选词数量（3/5）和**繁体输入**（关/开）三项即时设置。繁体输入默认关闭；开启后，中文全键和 T9 的拼音候选均从完整繁体词典读取。横向滚动仅绑定在菜单中部容器，左右各保留 12px 边缘区域，以降低与手表系统右滑返回手势的冲突。
 
-方屏组件会自动将键盘布局、输入语言、振动、候选词数量和繁体输入偏好写入快应用本地存储；重新打开键盘或重新进入快应用时会自动恢复。`settingsChange` 仍会向宿主页面通知最新偏好，宿主若需同步自己的页面状态，可接收事件后保存 `keyboardtype`、`vibratemode`、`maxlength`、`traditional`。
+`settingsChange` 仅通知宿主页面保存最新偏好，方屏组件本身会立即应用所选值。若需要跨页面持久化，请在宿主页面接收事件后更新对应数据，再在下一次创建组件时通过 `keyboardtype`、`vibratemode`、`maxlength`、`traditional` 传入。
 
 ## ⽰例代码
 ```html
