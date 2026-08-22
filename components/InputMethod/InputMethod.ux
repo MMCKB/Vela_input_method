@@ -139,7 +139,7 @@
       <!-- 方屏67 -->
       <div if="{{screentype==='rect'}}" style="width: 100%;height: 255px;flex-direction: column">
         <!-- 九键中文 -->
-        <div if="{{keyboardtype=='T9' && !numFlag}}" style="position:absolute;top:-11px;width:100%;height:276px;justify-content: center;">
+        <div if="{{rectKeyboardtype=='T9' && !numFlag}}" style="position:absolute;top:-11px;width:100%;height:276px;justify-content: center;">
           <div style="top:77px;height:189px;width:100%;align-items: stretch;justify-content: space-between;flex-direction: column;padding:6px 3px">
             <div class="keyboard-rows-rect-t9">
               <text class="calbtnt9 calbtnt9-rect" @click="onSelect('select')">
@@ -187,7 +187,7 @@
           </scroll>
         </div>
         <div style="width: 100%; flex-direction: row; justify-content: center; top:6px; padding:0 6px;">
-          <img src="./assets/horizontal/cn.png" style="padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='cn'}}" />
+          <text class="rect-switch-trigger" @click="openRectPanel('switch')" if="{{downFlag==='' && !numFlag}}">切换</text>
           <div if="{{lang === 'cn' && !numFlag}}" style="margin-left: 6px;flex: 1;height: 60px;background-color:#262626;border-color: #333333; border-width: 3px; border-radius: 100px;flex-direction: row;align-items:center">
             <scroll id="cvalWaiting" scroll-x="{{true}}" style="position:absolute;width: 85%;height: 42px;">
               <div static style="position: absolute;left: 0px;height: 42px;padding-left:20px;padding-right:20px">
@@ -198,7 +198,6 @@
             <img if="{{resultList.length > 0}}" style="position:absolute;right: 8px; width: 60px;height: 40px;" src="./assets/horizontal/down2.png" @click="onBtnClick('down')" />
           </div>
         
-          <img src="./assets/horizontal/en.png" style="padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='en'}}" />
           <img src="./assets/horizontal/bigA.png" style="padding: 6px;margin-left: 6px;width:94px;height:60px;" @click="onBtnClick('switchLow')" if="{{downFlag==='' && upperFlag && lang==='en'&& !numFlag}}" />
           <img src="./assets/horizontal/a.png" style="padding: 6px;margin-left: 6px;width:94px;height:60px;" @click="onBtnClick('switchUpper')" if="{{downFlag==='' && !upperFlag && lang==='en'&& !numFlag}}" />
           <img src="./assets/horizontal/123.png" style="margin-left: 6px;padding: 6px;margin-left: 6px;width: 94px;height: 60px;" @click="onBtnClick('switchNum')" if="{{downFlag==='' && !numFlag && lang==='en'}}" />
@@ -218,6 +217,35 @@
             </list>
           </div>
           <img static style="margin-top:5px" src="./assets/horizontal/up2.png" @click="onBtnClick('down')" />
+        </div>
+        <!-- 方屏键盘切换面板：仅中部的 scroll 响应横向滚动，左右各留 12px 边缘让出系统右滑返回手势。 -->
+        <div class="rect-overlay" if="{{rectPanel==='switch'}}">
+          <scroll id="rectModeScroll" class="rect-mode-scroll" scroll-x="{{true}}" style="width:{{screenWidth - 24}}px;">
+            <div class="rect-mode-menu">
+              <text class="rect-mode-button" style="background-color:{{lang==='cn' && rectKeyboardtype!=='T9' ? 'rgb(13,132,255)' : 'rgb(38,38,38)'}}" @click="selectRectKeyboard('cn')">中</text>
+              <text class="rect-mode-button" style="background-color:{{lang==='en' && rectKeyboardtype!=='T9' ? 'rgb(13,132,255)' : 'rgb(38,38,38)'}}" @click="selectRectKeyboard('en')">英</text>
+              <text class="rect-mode-button" style="background-color:{{rectKeyboardtype==='T9' ? 'rgb(13,132,255)' : 'rgb(38,38,38)'}}" @click="selectRectKeyboard('t9')">九</text>
+              <text class="rect-mode-button" style="font-size:22px" @click="openRectPanel('settings')">设置</text>
+            </div>
+          </scroll>
+        </div>
+        <!-- 方屏新增设置功能：当前提供按键振动和候选词数量两项即时生效的设置。 -->
+        <div class="rect-overlay rect-settings-overlay" if="{{rectPanel==='settings'}}">
+          <div class="rect-settings-header">
+            <text class="rect-settings-title">设置</text>
+            <text class="rect-panel-close" @click="closeRectPanel">完成</text>
+          </div>
+          <div class="rect-settings-row">
+            <text class="rect-settings-label">按键振动</text>
+            <text class="rect-settings-option" style="background-color:{{rectVibrateMode==='' ? 'rgb(13,132,255)' : 'rgb(38,38,38)'}}" @click="setRectVibrateMode('')">关</text>
+            <text class="rect-settings-option" style="background-color:{{rectVibrateMode==='short' ? 'rgb(13,132,255)' : 'rgb(38,38,38)'}}" @click="setRectVibrateMode('short')">短</text>
+            <text class="rect-settings-option" style="background-color:{{rectVibrateMode==='long' ? 'rgb(13,132,255)' : 'rgb(38,38,38)'}}" @click="setRectVibrateMode('long')">长</text>
+          </div>
+          <div class="rect-settings-row">
+            <text class="rect-settings-label">候选词</text>
+            <text class="rect-settings-option" style="background-color:{{rectCandidateCount===3 ? 'rgb(13,132,255)' : 'rgb(38,38,38)'}}" @click="setRectCandidateCount(3)">3</text>
+            <text class="rect-settings-option" style="background-color:{{rectCandidateCount===5 ? 'rgb(13,132,255)' : 'rgb(38,38,38)'}}" @click="setRectCandidateCount(5)">5</text>
+          </div>
         </div>
       </div>
       <!-- 胶囊屏66 -->
@@ -335,6 +363,11 @@ export default {
     cvalList: [0, 1, 2, 3, 4],
     percent67: 52,
     percent66: 0,
+    // 方屏专用状态；不修改外部 keyboardtype/vibratemode 属性，避免破坏组件的单向数据流。
+    rectPanel: "",
+    rectKeyboardtype: "QWERTY",
+    rectVibrateMode: "",
+    rectCandidateCount: 5,
     // 针对screenShape为rect的设备，会自动获取screenWidth并绑定到根div
     // 这样便能同时适配n67和o65甚至是后续设备，但实际效果可能受designWidth影响
     screenWidth: 336,
@@ -377,11 +410,70 @@ export default {
     if (this.screentype === "rect" || this.screentype === "pill-shaped") {
       this.adjustScreenWidth();
     }
+    // 初始化方屏内部状态，以外部传入属性作为首次默认值。
+    this.rectKeyboardtype = this.keyboardtype === "T9" ? "T9" : "QWERTY";
+    this.rectVibrateMode = this.vibratemode;
+    this.rectCandidateCount = parseInt(this.maxlength) || 5;
     this.$watch("hide", "watchHidePropsChange");
     this.$watch("maxlength", "watchMaxLengthPropsChange");
+    this.$watch("keyboardtype", "watchKeyboardtypePropsChange");
+    this.$watch("vibratemode", "watchVibratemodePropsChange");
   },
   addAllTxt(txt) {
     this.$emit("complete", { content: txt });
+  },
+  openRectPanel(panel) {
+    if (this.screentype !== "rect") {
+      return;
+    }
+    this.onVibrate();
+    this.rectPanel = panel;
+  },
+  closeRectPanel() {
+    this.onVibrate();
+    this.rectPanel = "";
+  },
+  selectRectKeyboard(mode) {
+    this.onVibrate();
+    this.rectPanel = "";
+    this.numFlag = false;
+    this.cval = "";
+    this.clearWaiting();
+    if (mode === "cn") {
+      this.lang = "cn";
+      this.rectKeyboardtype = "QWERTY";
+    } else if (mode === "en") {
+      this.lang = "en";
+      this.rectKeyboardtype = "QWERTY";
+    } else {
+      this.lang = "cn";
+      this.rectKeyboardtype = "T9";
+    }
+    this.resetReslutList();
+    this.emitRectSettingsChange();
+  },
+  setRectVibrateMode(mode) {
+    this.rectVibrateMode = mode;
+    this.onVibrate();
+    this.emitRectSettingsChange();
+  },
+  setRectCandidateCount(count) {
+    this.rectCandidateCount = count;
+    this.cvalList = [];
+    for (let i = 0; i < count; i++) {
+      this.cvalList.push(i);
+    }
+    this.resetReslutList();
+    this.onVibrate();
+    this.emitRectSettingsChange();
+  },
+  emitRectSettingsChange() {
+    this.$emit("settingsChange", {
+      keyboardtype: this.rectKeyboardtype,
+      lang: this.lang,
+      vibratemode: this.rectVibrateMode,
+      maxlength: this.rectCandidateCount,
+    });
   },
   onRsSelect(txt) {
     this.onVibrate();
@@ -541,7 +633,8 @@ export default {
   },
   onSelect(num) {
     this.$emit("keyDown", { content: num });
-    if (this.keyboardtype === "T9" && this.screentype !== "pill-shaped") {
+    const activeKeyboardtype = this.screentype === "rect" ? this.rectKeyboardtype : this.keyboardtype;
+    if (activeKeyboardtype === "T9" && this.screentype !== "pill-shaped") {
       this.onBtnClick(num);
       return;
     }
@@ -583,11 +676,25 @@ export default {
         tempCvalList.push(i);
       }
       this.cvalList = tempCvalList;
+      if (this.screentype === "rect") {
+        this.rectCandidateCount = parseInt(newV) || this.rectCandidateCount;
+      }
+    }
+  },
+  watchKeyboardtypePropsChange(newV, oldV) {
+    if (this.screentype === "rect") {
+      this.rectKeyboardtype = newV === "T9" ? "T9" : "QWERTY";
+    }
+  },
+  watchVibratemodePropsChange(newV, oldV) {
+    if (this.screentype === "rect") {
+      this.rectVibrateMode = newV;
     }
   },
   onVibrate() {
-    if (this.vibratemode != "") {
-      vibrator.vibrate({ mode: this.vibratemode });
+    const mode = this.screentype === "rect" ? this.rectVibrateMode : this.vibratemode;
+    if (mode != "") {
+      vibrator.vibrate({ mode: mode });
     }
   },
   handelScroll(event) {
@@ -691,6 +798,99 @@ export default {
 .item3 {
 	width:324px;
 	height:52px
+}
+.rect-switch-trigger {
+  color:rgb(255,255,255);
+  font-size:22px;
+  font-weight:bold;
+  background-color:rgb(38,38,38);
+  width:60px;
+  height:60px;
+  border-radius:30px;
+  text-align:center;
+  border:3px solid rgba(255,255,255,0.12);
+}
+.rect-overlay {
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:100%;
+  height:252px;
+  background-color:black;
+  justify-content:center;
+  align-items:center;
+}
+.rect-mode-scroll {
+  height:100%;
+  /* 仅该局部滚动容器处理横向滑动；外层不绑定滑动事件。 */
+}
+.rect-mode-menu {
+  min-width:360px;
+  height:100%;
+  padding-left:12px;
+  padding-right:12px;
+  flex-direction:row;
+  justify-content:flex-start;
+  align-items:center;
+}
+.rect-mode-button {
+  color:#fff;
+  font-size:30px;
+  font-weight:bold;
+  width:70px;
+  height:70px;
+  margin:0 3px;
+  border-radius:35px;
+  text-align:center;
+  border:3px solid rgba(255,255,255,0.16);
+}
+.rect-settings-overlay {
+  justify-content:flex-start;
+  flex-direction:column;
+  padding:12px 12px 0 12px;
+}
+.rect-settings-header {
+  width:100%;
+  height:45px;
+  flex-direction:row;
+  align-items:center;
+  justify-content:space-between;
+}
+.rect-settings-title {
+  color:#fff;
+  font-size:26px;
+  font-weight:bold;
+}
+.rect-panel-close {
+  color:rgb(13,132,255);
+  font-size:22px;
+  width:64px;
+  height:42px;
+  text-align:center;
+}
+.rect-settings-row {
+  width:100%;
+  height:72px;
+  flex-direction:row;
+  align-items:center;
+  border-top:2px solid #262626;
+}
+.rect-settings-label {
+  color:#fff;
+  width:92px;
+  font-size:21px;
+  font-weight:bold;
+}
+.rect-settings-option {
+  color:#fff;
+  font-size:21px;
+  font-weight:bold;
+  width:48px;
+  height:48px;
+  margin-left:8px;
+  border-radius:24px;
+  text-align:center;
+  border:3px solid rgba(255,255,255,0.12);
 }
 .calbtn67 {
 	color:rgb(255,255,255);
