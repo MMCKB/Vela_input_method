@@ -70,7 +70,7 @@ SimpleInputMethod._buildForwardIndex = function() {
   step()
 }
 
-SimpleInputMethod.getSingleHanzi = function(pinyin, lang) {
+SimpleInputMethod.getSingleHanzi = function(pinyin, lang = 'cn') {
   if (lang !== 'cn') return ''
   return this.dict.py2hz2[pinyin]
   || this.dict.py2hz[pinyin]
