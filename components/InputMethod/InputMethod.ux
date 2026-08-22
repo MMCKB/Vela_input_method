@@ -142,12 +142,8 @@
         <div if="{{rectKeyboardtype=='T9' && !numFlag}}" style="position:absolute;top:-11px;width:100%;height:276px;justify-content: center;">
           <div style="top:77px;height:189px;width:100%;align-items: stretch;justify-content: space-between;flex-direction: column;padding:6px 3px">
             <div class="keyboard-rows-rect-t9">
-              <text class="calbtnt9 calbtnt9-rect" @click="onSelect('select')">
-                选择
-                <span if="{{waitingList.length != 0}}" class="waiting-keys" style="color:rgb(13,132,255);" @click="onSelectWaiting(waitingIndex)">
-                  {{waitingList[waitingIndex].toUpperCase()}}
-                </span>
-              </text>
+              <!-- 手机式九键左上角空格键；中文候选仍通过顶部候选栏直接点按确认。 -->
+              <text class="calbtnt9 calbtnt9-rect" @click="onBtnClick('space')">空格</text>
               <text class="calbtnt9 calbtnt9-rect" for="{{item in keys['t9'][0]}}" @click="onSelect(item)">{{item.toUpperCase()}}</text>
             </div>
             <div class="keyboard-rows-rect-t9">
