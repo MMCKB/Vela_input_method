@@ -28,7 +28,7 @@ git clone https://github.com/MMCKB/Vela_input_method.git
                  └─ 输入法仅应用配置，不反向保存
 ```
 
-推荐在快应用设置页保存以下四项，并在创建输入面板前将当前值绑定到 `input-method`：**默认输入布局、默认简体/繁体、按键振动长度、候选词数量**。
+推荐在快应用设置页保存以下五项，并在创建输入面板前将当前值绑定到 `input-method`：**默认输入布局、默认简体/繁体、按键振动长度、候选词数量、方屏主题**。
 
 | 设置页项目 | 输入法属性 | 可传值 | 组件默认值 | 方屏行为 |
 |---|---|---|---|---|
@@ -36,12 +36,13 @@ git clone https://github.com/MMCKB/Vela_input_method.git
 | 默认简体/繁体 | `traditional` | `true`、`false` | `false` | `false` 为简体候选；`true` 为繁体候选。只影响方屏中文输入。 |
 | 按键振动长度 | `vibratemode` | `""`、`short`、`long` | `""` | 空字符串关闭振动；其余值传递给 Vela 系统振动接口。 |
 | 候选词数量 | `maxlength` | 推荐 `3`、`5` | `5` | 控制默认候选栏每行展示数量；展开后仍可查看更多候选。 |
+| 方屏主题 | `keyboardtheme` | `dark`、`white`、`blue-gray` | `dark` | `white` 为纯白主题；`blue-gray` 为蓝灰主题；其他值安全回退为深色主题。只影响方屏。 |
 
-> 建议把 `keyboardtype`、`traditional`、`vibratemode`、`maxlength` 作为快应用的持久化偏好。组件支持这些属性在运行时更新，但第一版设置页建议采用“**保存后下次打开键盘生效**”，避免在正在输入时切换布局或候选数量。
+> 建议把 `keyboardtype`、`traditional`、`vibratemode`、`maxlength`、`keyboardtheme` 作为快应用的持久化偏好。组件支持这些属性在运行时更新，但第一版设置页建议采用“**保存后下次打开键盘生效**”，避免在正在输入时切换布局、候选数量或主题。
 
 ### 最小接入示例
 
-以下示例中的四个变量由快应用设置页或应用级配置模块维护。输入法不关心这些值来自本地存储、网络同步还是固定默认值。
+以下示例中的五个变量由快应用设置页或应用级配置模块维护。输入法不关心这些值来自本地存储、网络同步还是固定默认值。
 
 ```html
 <import name="input-method" src="../../components/InputMethod/InputMethod.ux"></import>
@@ -55,6 +56,7 @@ git clone https://github.com/MMCKB/Vela_input_method.git
       traditional="{{traditional}}"
       vibratemode="{{vibratemode}}"
       maxlength="{{maxlength}}"
+      keyboardtheme="{{keyboardtheme}}"
       @visibility-change="onVisibilityChange"
       @key-down="onKeyDown"
       @delete="onDelete"
@@ -74,15 +76,19 @@ export default {
     traditional: false,      // false 为简体，true 为繁体
     vibratemode: "",        // ""、"short" 或 "long"
     maxlength: 5,            // 推荐 3 或 5
+    keyboardtheme: "blue-gray", // "dark"、"white" 或 "blue-gray"
   },
 
-  // 设置页保存后，由上层页面更新这四个状态；
+  // 设置页保存后，由上层页面更新这五个状态；
   // 不要要求 input-method 自己保存，也不要在返回/发送回调中保存。
   applyKeyboardPreferences(preferences) {
     this.keyboardtype = preferences.keyboardtype === "T9" ? "T9" : "QWERTY";
     this.traditional = preferences.traditional === true;
     this.vibratemode = preferences.vibratemode || "";
     this.maxlength = preferences.maxlength === 3 ? 3 : 5;
+    this.keyboardtheme = preferences.keyboardtheme === "white" || preferences.keyboardtheme === "blue-gray"
+      ? preferences.keyboardtheme
+      : "dark";
   },
 
   onVisibilityChange(evt) {
@@ -112,7 +118,7 @@ export default {
 
 ### 设置页保存边界
 
-设置页可使用快应用自身已经验证的配置服务或存储模块保存四项偏好，但应在设置页或应用级配置层完成，不应放入输入法组件或输入面板生命周期。
+设置页可使用快应用自身已经验证的配置服务或存储模块保存五项偏好，但应在设置页或应用级配置层完成，不应放入输入法组件或输入面板生命周期。主题仅通过 `keyboardtheme` 属性单向传入，输入法不提供主题设置按钮，也不保存主题。
 
 | 允许的位置 | 不允许的位置 |
 |---|---|
@@ -131,6 +137,7 @@ export default {
 | `traditional` | boolean | `false` | 否 | 方屏中文候选的默认字形。`false` 简体，`true` 繁体。 |
 | `vibratemode` | string | `""` | 否 | 按键振动模式。`""` 为关闭，`short`、`long` 为系统振动模式。 |
 | `maxlength` | number | `5` | 否 | 默认候选展示数量。推荐只由设置页传 `3` 或 `5`。 |
+| `keyboardtheme` | string | `dark` | 否 | 方屏主题。`white` 为纯白，`blue-gray` 为蓝灰，`dark` 为深色；未知值回退为 `dark`。 |
 | `screentype` | string | `circle` | 否 | `rect` 为方屏，`circle` 为圆屏，`pill-shaped` 为胶囊屏。 |
 
 ## 组件事件
@@ -149,10 +156,10 @@ export default {
 
 方屏中文全键与 T9 模式显示“简/繁”快捷按钮，它只影响**当前已打开键盘**的候选字形。若需要让下一次打开键盘默认使用繁体，应由快应用设置页保存 `traditional=true`，再通过属性传入。
 
-候选词典按需惰性加载。设置候选数量不会建立全量词组索引，也不会改变简繁词典或 T9 分段回退逻辑。
+候选词典按需惰性加载。设置候选数量不会建立全量词组索引，也不会改变简繁词典或 T9 分段回退逻辑。`keyboardtheme` 仅改变方屏背景、候选栏、顶部五键栏、字母/T9 键位、候选展开面板和切换页的配色，不改变键盘布局或输入逻辑。
 
 ## 兼容与升级说明
 
-旧版本 README 曾描述方屏“设置”菜单及 `settingsChange` 事件。该说明已过期：当前组件不提供该菜单，也不发出该事件。请改为由快应用设置页保存偏好，并使用本 README 中的四个属性传入组件。
+旧版本 README 曾描述方屏“设置”菜单及 `settingsChange` 事件。该说明已过期：当前组件不提供该菜单，也不发出该事件。请改为由快应用设置页保存偏好，并使用本 README 中的五个属性传入组件。
 
-当前用户指令优先于本 README。若需要增加主题、顶部五键栏开关或实时预览等设置，请先在宿主侧设计新的只读属性，再单独进行方屏真机稳定性验证。
+当前用户指令优先于本 README。主题接口当前只支持 `dark`、`white`、`blue-gray`；若需要增加更多主题、顶部五键栏开关或实时预览等设置，请先在宿主侧设计新的只读属性，再单独进行方屏真机稳定性验证。
