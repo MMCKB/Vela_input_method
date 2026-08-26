@@ -28,7 +28,7 @@ git clone https://github.com/MMCKB/Vela_input_method.git
                  └─ 输入法仅应用配置，不反向保存
 ```
 
-推荐在快应用设置页保存以下七项，并在创建输入面板前将当前值绑定到 `input-method`：**默认输入布局、默认简体/繁体、按键振动长度、候选词数量、方屏主题、英文双击 Shift 锁定大写、英文自动首字母大写**。
+推荐在快应用设置页保存以下六项，并在创建输入面板前将当前值绑定到 `input-method`：**默认输入布局、默认简体/繁体、按键振动长度、候选词数量、方屏主题、英文双击 Shift 锁定大写**。
 
 | 设置页项目 | 输入法属性 | 可传值 | 组件默认值 | 方屏行为 |
 |---|---|---|---|---|
@@ -38,13 +38,12 @@ git clone https://github.com/MMCKB/Vela_input_method.git
 | 候选词数量 | `maxlength` | 推荐 `3`、`5` | `5` | 控制默认候选栏每行展示数量；展开后仍可查看更多候选。 |
 | 方屏主题 | `keyboardtheme` | `dark`、`white`、`blue-gray` | `dark` | `white` 为纯白主题；`blue-gray` 为蓝灰主题；其他值安全回退为深色主题。只影响方屏。 |
 | 双击 Shift 锁定大写 | `doubletapshiftlock` | `true`、`false` | `false` | 仅方屏英文全键生效。两次快速点按上箭头锁定大写；锁定后单击解除。关闭时保持原有单击大小写切换。 |
-| 英文自动首字母大写 | `autocapitalize` | `true`、`false` | `false` | 仅方屏英文全键生效。切换至英文或点按顶部回车后，下一次英文输入自动大写一次。 |
 
-> 建议把 `keyboardtype`、`traditional`、`vibratemode`、`maxlength`、`keyboardtheme`、`doubletapshiftlock`、`autocapitalize` 作为快应用的持久化偏好。组件支持这些属性在运行时更新，但设置页建议采用“**保存后下次打开键盘生效**”，避免在正在输入时切换布局、候选数量、主题或大写辅助行为。
+> 建议把 `keyboardtype`、`traditional`、`vibratemode`、`maxlength`、`keyboardtheme`、`doubletapshiftlock` 作为快应用的持久化偏好。组件支持这些属性在运行时更新，但设置页建议采用“**保存后下次打开键盘生效**”，避免在正在输入时切换布局、候选数量、主题或双击 Shift 行为。
 
 ### 最小接入示例
 
-以下示例中的七个变量由快应用设置页或应用级配置模块维护。输入法不关心这些值来自本地存储、网络同步还是固定默认值。
+以下示例中的六个变量由快应用设置页或应用级配置模块维护。输入法不关心这些值来自本地存储、网络同步还是固定默认值。
 
 ```html
 <import name="input-method" src="../../components/InputMethod/InputMethod.ux"></import>
@@ -60,7 +59,6 @@ git clone https://github.com/MMCKB/Vela_input_method.git
       maxlength="{{maxlength}}"
       keyboardtheme="{{keyboardtheme}}"
       doubletapshiftlock="{{doubletapshiftlock}}"
-      autocapitalize="{{autocapitalize}}"
       @visibility-change="onVisibilityChange"
       @key-down="onKeyDown"
       @delete="onDelete"
@@ -82,10 +80,9 @@ export default {
     maxlength: 5,            // 推荐 3 或 5
     keyboardtheme: "blue-gray", // "dark"、"white" 或 "blue-gray"
     doubletapshiftlock: false, // false 关闭；true 开启英文双击 Shift 锁定大写
-    autocapitalize: false, // false 关闭；true 开启英文首字母自动大写
   },
 
-  // 设置页保存后，由上层页面更新这七个状态；
+  // 设置页保存后，由上层页面更新这六个状态；
   // 不要要求 input-method 自己保存，也不要在返回/发送回调中保存。
   applyKeyboardPreferences(preferences) {
     this.keyboardtype = preferences.keyboardtype === "T9" ? "T9" : "QWERTY";
@@ -96,7 +93,6 @@ export default {
       ? preferences.keyboardtheme
       : "dark";
     this.doubletapshiftlock = preferences.doubletapshiftlock === true;
-    this.autocapitalize = preferences.autocapitalize === true;
   },
 
   onVisibilityChange(evt) {
@@ -126,7 +122,7 @@ export default {
 
 ### 设置页保存边界
 
-设置页可使用快应用自身已经验证的配置服务或存储模块保存七项偏好，但应在设置页或应用级配置层完成，不应放入输入法组件或输入面板生命周期。主题和英文大写辅助均仅通过属性单向传入，输入法不提供设置按钮，也不保存这些偏好。
+设置页可使用快应用自身已经验证的配置服务或存储模块保存六项偏好，但应在设置页或应用级配置层完成，不应放入输入法组件或输入面板生命周期。主题和双击 Shift 行为均仅通过属性单向传入，输入法不提供设置按钮，也不保存这些偏好。
 
 | 允许的位置 | 不允许的位置 |
 |---|---|
@@ -147,7 +143,6 @@ export default {
 | `maxlength` | number | `5` | 否 | 默认候选展示数量。推荐只由设置页传 `3` 或 `5`。 |
 | `keyboardtheme` | string | `dark` | 否 | 方屏主题。`white` 为纯白，`blue-gray` 为蓝灰，`dark` 为深色；未知值回退为 `dark`。 |
 | `doubletapshiftlock` | boolean | `false` | 否 | 仅方屏英文全键有效。开启后，两次快速点按 Shift 上箭头锁定大写；锁定后单击解除。默认关闭。 |
-| `autocapitalize` | boolean | `false` | 否 | 仅方屏英文全键有效。开启后，切换至英文或点按顶部回车后，下一次英文输入自动大写一次。默认关闭。 |
 | `screentype` | string | `circle` | 否 | `rect` 为方屏，`circle` 为圆屏，`pill-shaped` 为胶囊屏。 |
 
 ## 组件事件
@@ -166,10 +161,10 @@ export default {
 
 方屏中文全键与 T9 模式显示“简/繁”快捷按钮，它只影响**当前已打开键盘**的候选字形。若需要让下一次打开键盘默认使用繁体，应由快应用设置页保存 `traditional=true`，再通过属性传入。
 
-候选词典按需惰性加载。设置候选数量不会建立全量词组索引，也不会改变简繁词典或 T9 分段回退逻辑。`keyboardtheme` 仅改变方屏背景、候选栏、顶部五键栏、字母/T9 键位、候选展开面板和切换页的配色，不改变键盘布局或输入逻辑。`doubletapshiftlock` 与 `autocapitalize` 均默认关闭，只调整方屏英文全键的大小写状态，不改变键盘几何、候选逻辑或宿主返回/发送路径。
+候选词典按需惰性加载。设置候选数量不会建立全量词组索引，也不会改变简繁词典或 T9 分段回退逻辑。`keyboardtheme` 仅改变方屏背景、候选栏、顶部五键栏、字母/T9 键位、候选展开面板和切换页的配色，不改变键盘布局或输入逻辑。`doubletapshiftlock` 默认关闭，只调整方屏英文全键的大小写状态，不改变键盘几何、候选逻辑或宿主返回/发送路径。
 
 ## 兼容与升级说明
 
-旧版本 README 曾描述方屏“设置”菜单及 `settingsChange` 事件。该说明已过期：当前组件不提供该菜单，也不发出该事件。请改为由快应用设置页保存偏好，并使用本 README 中的七个属性传入组件。
+旧版本 README 曾描述方屏“设置”菜单及 `settingsChange` 事件。该说明已过期：当前组件不提供该菜单，也不发出该事件。请改为由快应用设置页保存偏好，并使用本 README 中的六个属性传入组件。
 
 当前用户指令优先于本 README。主题接口当前只支持 `dark`、`white`、`blue-gray`；若需要增加更多主题、顶部五键栏开关或实时预览等设置，请先在宿主侧设计新的只读属性，再单独进行方屏真机稳定性验证。
